@@ -175,4 +175,4 @@ Issues and pull requests are welcome. Please keep changes focused, and run `npm 
 - ✅ Model picker with search, OpenRouter free models
 - ✅ Voice-call approvals ("say approve or deny")
 - 📦 Final installer polish
-"# FREETECH" 
+
