@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="main.css" />
+</head>
+<body>
+  <!-- title bar -->
+  <header id="titlebar">
+    <div class="brand">
+      <div class="logo"></div>
+      <span>Orbit AI</span>
+      <span id="versionTag" class="version"></span>
+    </div>
+    <div class="spacer"></div>
+    <button id="minBtn" class="win-btn" title="Minimize">─</button>
+    <button id="closeBtn" class="win-btn" title="Close to tray">✕</button>
+  </header>
+
+  <div id="layout">
+    <nav id="sidenav">
+      <button class="nav-btn active" data-tab="start">🚀 Get Started</button>
+      <button class="nav-btn" data-tab="connection">🔑 Connection</button>
+      <button class="nav-btn" data-tab="overlay">🟣 Floating Button</button>
+      <button class="nav-btn" data-tab="connectors">🔌 Connectors (MCP)</button>
+      <button class="nav-btn" data-tab="skills">⚡ Skills</button>
+      <button class="nav-btn" data-tab="voice">🎙 Voice</button>
+      <button class="nav-btn" data-tab="memory">🧠 Memory</button>
+      <button class="nav-btn" data-tab="about">💡 About</button>
+      <div class="nav-footer">
+        <div id="navStatus" class="nav-status"></div>
+      </div>
+    </nav>
+
+    <main id="content">
+
+      <!-- ============ GET STARTED ============ -->
+      <section class="tab" id="tab-start">
+        <h1>Welcome to Orbit AI 👋</h1>
+        <p class="lead">A tiny AI agent that lives on your screen. Drag it anywhere, click it to chat, and give it superpowers with MCP connectors.</p>
+        <div class="steps">
+          <div class="step" id="step1">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Add an API key</h3>
+              <p>Paste at least one key from Groq, OpenRouter or NVIDIA. <a href="#" class="goto" data-tab="connection">Go to Connection →</a></p>
+              <div class="step-state" id="step1State">…</div>
+            </div>
+          </div>
+          <div class="step" id="step2">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3>Pick your model</h3>
+              <p>Choose the AI model you want to talk to. <a href="#" class="goto" data-tab="connection">Choose in Connection →</a></p>
+              <div class="step-state" id="step2State">…</div>
+            </div>
+          </div>
+          <div class="step" id="step3">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3>Activate the floating button</h3>
+              <p>A small orb appears on your screen. Drag it anywhere, click it to chat. <a href="#" class="goto" data-tab="overlay">Activate →</a></p>
+              <div class="step-state" id="step3State">…</div>
+            </div>
+          </div>
+          <div class="step optional">
+            <div class="step-num">★</div>
+            <div class="step-body">
+              <h3>Optional: give it hands (MCP)</h3>
+              <p>Connect tools — files, terminal, web, games, anything that speaks MCP. <a href="#" class="goto" data-tab="connectors">Open Connectors →</a></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CONNECTION ============ -->
+      <section class="tab hidden" id="tab-connection">
+        <h1>Connection</h1>
+        <p class="lead">Orbit works with any of these providers. Add one key or all three — then just pick a model.</p>
+        <div class="provider-cards" id="providerCards"></div>
+
+        <div class="card">
+          <h2>Default model</h2>
+          <div class="row">
+            <div class="field">
+              <label>Provider</label>
+              <select id="defaultProvider"></select>
+            </div>
+            <div class="field grow">
+              <label>Model</label>
+              <div class="combo">
+                <input id="defaultModel" type="text" list="defaultModelList" placeholder="pick a model" />
+                <datalist id="defaultModelList"></datalist>
+              </div>
+            </div>
+            <button id="refreshModelsBtn" class="btn ghost">↻ Refresh</button>
+          </div>
+          <p class="hint" id="modelHint"></p>
+        </div>
+
+        <div class="card">
+          <h2>Assistant personality</h2>
+          <label class="inline-label">System prompt</label>
+          <textarea id="systemPrompt" rows="3" spellcheck="false"></textarea>
+          <div class="row" style="margin-top:10px">
+            <div class="field grow">
+              <label>Creativity (temperature): <b id="tempVal">0.7</b></label>
+              <input id="temperature" type="range" min="0" max="1.5" step="0.1" value="0.7" />
+            </div>
+          </div>
+          <button id="savePersonalityBtn" class="btn">Save personality</button>
+        </div>
+      </section>
+
+      <!-- ============ FLOATING BUTTON ============ -->
+      <section class="tab hidden" id="tab-overlay">
+        <h1>Floating button</h1>
+        <p class="lead">The little orb that sits on top of everything. Drag it anywhere on the screen — click it to chat with your AI.</p>
+
+        <div class="card center">
+          <div class="orb-preview"></div>
+          <button id="activateBtn" class="btn big">Activate</button>
+          <p class="hint" id="overlayHint"></p>
+        </div>
+
+        <div class="card">
+          <h2>Global hotkey</h2>
+          <p class="hint">Show/hide the floating button instantly from anywhere — even while a game or another app is focused.</p>
+          <div class="row" style="align-items:center">
+            <input id="hotkeyInput" class="hotkey" readonly placeholder="Click and press keys…" />
+            <button id="hotkeySaveBtn" class="btn">Set hotkey</button>
+            <span id="hotkeyStatus" class="status-text"></span>
+          </div>
+          <p class="hint">Tip: if <b>Alt+Space</b> conflicts with another app (e.g. PowerToys Run), try <b>Ctrl+Alt+Space</b> or <b>Ctrl+Alt+O</b>.</p>
+        </div>
+
+        <div class="card">
+          <h2>Behavior</h2>
+          <label class="toggle"><input type="checkbox" id="autoHideChat" /> <span>Auto-hide chat when I click somewhere else</span></label>
+          <label class="toggle"><input type="checkbox" id="launchOnStartup" /> <span>Start Orbit when Windows starts (minimized to tray)</span></label>
+          <p class="hint">Closing the main window keeps Orbit running in the system tray. Use the tray icon → Quit to exit fully.</p>
+        </div>
+      </section>
+
+      <!-- ============ CONNECTORS ============ -->
+      <section class="tab hidden" id="tab-connectors">
+        <h1>Connectors <span class="mcp-badge">MCP</span></h1>
+        <p class="lead">Give your assistant hands: files, terminal, browser, games — anything that speaks Model Context Protocol. Works with servers made for Claude, Cursor, VS Code and more.</p>
+
+        <div class="row" style="margin-bottom:14px">
+          <button id="addServerBtn" class="btn">+ Add server</button>
+          <button id="importClaudeBtn" class="btn ghost">⬇ Import from Claude / Cursor</button>
+          <button id="pickConfigBtn" class="btn ghost">📂 Pick config file…</button>
+        </div>
+
+        <div id="addServerForm" class="card hidden">
+          <h2 id="addServerTitle">Add MCP server</h2>
+          <div class="row">
+            <div class="field"><label>Name</label><input id="srvName" placeholder="my-server" /></div>
+            <div class="field grow"><label>Command</label><input id="srvCommand" placeholder="npx  (or full path to an .exe / script)" /></div>
+          </div>
+          <div class="field"><label>Arguments (space separated, "quoted" if they contain spaces)</label><input id="srvArgs" placeholder='-y @modelcontextprotocol/server-filesystem "C:\some\folder"' /></div>
+          <div class="field"><label>Environment variables (one per line, KEY=value)</label><textarea id="srvEnv" rows="2" placeholder="API_TOKEN=abc123"></textarea></div>
+          <label class="toggle"><input type="checkbox" id="srvEnabled" checked /> <span>Connect right away</span></label>
+          <div class="row" style="margin-top:10px">
+            <button id="srvSaveBtn" class="btn">Save &amp; connect</button>
+            <button id="srvCancelBtn" class="btn ghost">Cancel</button>
+            <span class="hint grow" style="align-self:center">Needs Node.js (for npx servers) or Python/uv (for uvx servers) installed on this PC.</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Your connectors</h2>
+          <div id="serverList" class="server-list"></div>
+        </div>
+
+        <div class="card">
+          <h2>One-click templates</h2>
+          <p class="hint">Popular MCP servers. The AI downloads and runs them automatically (first run takes a moment).</p>
+          <div id="templateList" class="template-list"></div>
+        </div>
+
+        <div class="card">
+          <h2>🖱️ PC control</h2>
+          <p class="hint"><b>41 tools</b> for smart computer use — with <b>his own virtual mouse</b> (ghost clicks that never move your cursor): mouse (incl. drag), keyboard, screenshots (full screen or one window), <b>read/write/search files</b>, recycle-bin deletes, window management (minimize/maximize/move/resize), launch &amp; force-close apps, open URLs, processes, clipboard, notifications, volume, system stats — and a raw <b>PowerShell</b> tool for anything else. You SEE him work: a glowing <b>Orbit cursor</b> glides across your screen and ripples when he clicks. With a <b>👁 vision model</b> he <b>looks at the screen, aims at the exact button, clicks, and double-checks with a new screenshot</b>. He can also <b>read text off your screen</b> (OCR), control media &amp; volume, and indexes your <b>whole game &amp; app library</b> (Start Menu, Steam, Epic, Store, registry), launches games through the right launcher, and every sensitive action shows an <b>Allow / Deny</b> prompt unless you choose full auto.</p>
+          <label class="toggle"><input type="checkbox" id="pcEnabled" /> <span>Enable PC control tools</span></label>
+          <div class="row" style="align-items:center;margin-top:6px">
+            <div class="field" style="width:280px">
+              <label>Safety mode</label>
+              <select id="pcMode">
+                <option value="confirm">Ask me before every action (recommended)</option>
+                <option value="auto">Full auto — act without asking (risky!)</option>
+              </select>
+            </div>
+            <button id="pcTestBtn" class="btn ghost" style="align-self:flex-end">Test engine</button>
+          </div>
+          <p class="hint" id="pcTestResult"></p>
+          <p class="hint">Works on Windows via built-in PowerShell — nothing to install. Try asking: <i>"take a screenshot, then open Notepad and type hello"</i>.</p>
+        </div>
+
+
+      </section>
+
+      <!-- ============ SKILLS ============ -->
+      <section class="tab hidden" id="tab-skills">
+        <h1>Skills</h1>
+        <p class="lead">One-tap prompt shortcuts, shown as chips in the chat window.</p>
+        <label class="toggle" style="margin-bottom:14px"><input type="checkbox" id="showSkills" /> <span>Show skill chips in chat</span></label>
+        <div id="skillList" class="skill-list"></div>
+        <div class="card">
+          <h2>Add a skill</h2>
+          <div class="row">
+            <div class="field" style="width:220px"><label>Name</label><input id="skillName" placeholder="Code review" /></div>
+            <div class="field grow"><label>Prompt (sent when clicked; you can append text after)</label><input id="skillPrompt" placeholder="Review this code and suggest improvements:\n\n" /></div>
+          </div>
+          <button id="skillAddBtn" class="btn">+ Add skill</button>
+        </div>
+      </section>
+
+      <!-- ============ VOICE ============ -->
+      <section class="tab hidden" id="tab-voice">
+        <h1>Voice</h1>
+        <p class="lead">Talk to Orbit, and let it talk back.</p>
+
+        <div class="card">
+          <h2>🔊 Speak replies out loud</h2>
+          <label class="toggle"><input type="checkbox" id="speakReplies" /> <span>Auto-read every reply aloud (Windows built-in voices, offline &amp; free)</span></label>
+          <div class="row" style="margin-top:10px">
+            <div class="field" style="width:280px">
+              <label>Voice</label>
+              <select id="voiceSelect"><option value="">System default</option></select>
+            </div>
+            <div class="field grow">
+              <label>Speed: <b id="voiceRateVal">0</b> <span class="hint">(slower … faster)</span></label>
+              <input id="voiceRate" type="range" min="-3" max="6" step="1" value="0" />
+            </div>
+            <button id="voiceTestBtn" class="btn ghost" style="align-self:flex-end">▶ Test</button>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <div class="field" style="width:170px">
+              <label>Call language</label>
+              <select id="callLangSelect">
+                <option value="auto">Auto-detect</option>
+                <option value="en">English only</option>
+                <option value="ar">العربية only</option>
+              </select>
+            </div>
+            <div class="field" style="width:200px">
+              <label>Mic pickup</label>
+              <select id="micPickupSelect">
+                <option value="near">Near me only (~1 m)</option>
+                <option value="normal">Normal</option>
+                <option value="room">Whole room</option>
+              </select>
+            </div>
+          </div>
+          <p class="hint">Call language forces both speech recognition and the reply language (fixes speaking English and getting Arabic back). "Near me only" gates the mic to ~1 meter so far-away voices and TV noise are ignored. Online voices (internet) are marked "Online ·" and use your Groq key.</p>
+          <p class="hint" id="voiceListHint">Loading installed voices…</p>
+        </div>
+
+        <div class="card">
+          <h2>📞 Call mode — talk to Orbit like a phone call</h2>
+          <p class="hint">Press <b>Call</b> (the phone icon in the chat, or the button below) and just talk. Orbit hears you <b>instantly</b>, transcribes with Groq Whisper the moment you pause, answers, and <b>speaks the reply out loud</b> — hands-free, back and forth. Press <b>End call</b> any time to stop listening.</p>
+          <button id="callStartBtn" class="btn">📞 Start a call now</button>
+        </div>
+
+        <div class="card">
+          <h2>🎤 Voice input (speech to text)</h2>
+          <p class="hint">Click the <b>mic button</b> in the chat, speak, click again (or just pause) — your words are transcribed with <b>Groq Whisper</b> and sent. Needs a Groq API key (free tier works) in the Connection tab.</p>
+          <label class="toggle"><input type="checkbox" id="sttAutoSend" /> <span>Send automatically right after transcribing</span></label>
+        </div>
+      </section>
+
+      <!-- ============ MEMORY ============ -->
+      <section class="tab hidden" id="tab-memory">
+        <h1>Memory</h1>
+        <p class="lead">Everything Orbit remembers about you, kept locally on this PC. It saves facts automatically during chats (your name, favorite games, projects…), and they're loaded into every new conversation — so it never forgets who you are.</p>
+        <div class="card">
+          <h2>What Orbit remembers (<span id="memCount">0</span>)</h2>
+          <div id="memList" class="memory-list"></div>
+          <div class="row" style="margin-top:12px">
+            <input id="memNew" type="text" placeholder="Add a fact manually, e.g. &quot;My name is Emin&quot;" style="flex:1" />
+            <button id="memAddBtn" class="btn">Remember</button>
+          </div>
+          <p class="hint" style="margin-top:8px">Tip: in chat you can just say <i>"remember that …"</i> — Orbit saves it with its memory tool. You can also say <i>"forget that …"</i>.</p>
+        </div>
+      </section>
+
+      <!-- ============ ABOUT ============ -->
+      <section class="tab hidden" id="tab-about">
+        <h1>About</h1>
+        <div class="card">
+          <div class="about-row"><span class="logo big"></span><div><h2>Orbit AI <span class="version" id="aboutVersion"></span></h2>
+          <p class="hint">A floating AI agent for your desktop. Groq · OpenRouter · NVIDIA · MCP.</p></div></div>
+        </div>
+        <div class="card">
+          <h2>Your data stays yours</h2>
+          <p class="hint">API keys and settings are stored locally on this PC only (<span id="configPath" class="mono"></span>). Chats go directly from this app to the provider you chose. MCP servers run locally as child processes.</p>
+        </div>
+        <div class="card">
+          <h2>Quick tips</h2>
+          <p class="hint">
+            • <b>Drag the orb</b> to move it, <b>click</b> to chat, <b>right-click</b> for a menu.<br />
+            • The <b>hotkey</b> works over games and fullscreen apps (borderless-windowed).<br />
+            • In chat, click the <b>model pill</b> to switch model/provider any time.<br />
+            • Exclusive fullscreen games will cover the orb — switch the game to borderless/windowed mode to see it.
+          </p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="main.js"></script>
+</body>
+</html>

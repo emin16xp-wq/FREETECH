@@ -1,0 +1,17 @@
+# dependencies and build output
+node_modules/
+dist/
+output/
+
+# local config, logs and temp files — never commit these
+config.json
+*.tmp
+*.log
+.env
+.env.*
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
